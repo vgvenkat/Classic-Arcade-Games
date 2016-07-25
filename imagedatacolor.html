@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Image colors-Canvas</title>
+</head>
+<body>
+    <div>
+
+    <input type="file" id="file" />
+    </div>
+
+<canvas width="1000" height="1000" id="image"></canvas>
+<script>
+document.getElementById('file').addEventListener('change', handleFileSelect, false);
+
+var imageCanvas = document.querySelector("#image"),
+context = imageCanvas.getContext("2d");
+
+function handleFileSelect(evt) {
+  var canvasWidth = 500;
+  var canvasHeight = 500;
+  var file = evt.target.files[0];
+
+
+
+  var reader = new FileReader();
+  reader.onload = function(fileObject) {
+    var data = fileObject.target.result;
+
+    // Create an image object
+    var image = new Image();
+    image.onload = function() {
+
+      window.imageSrc = this;
+      redrawMeme(window.imageSrc, null, null);
+    }
+
+    // Set image data to background image.
+    image.src = data;
+  };
+  reader.readAsDataURL(file)
+}
+function redrawMeme(image, topLine, bottomLine) {
+  // Get Canvas2DContext
+  var canvas = document.querySelector('canvas');
+  var ctx = canvas.getContext("2d");
+  if (image != null){
+
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      var imageData = ctx.getImageData(0,0,canvas.width, canvas.height)
+      console.log(imageData);
+      //paintGreen(imageData.data);
+      greyScale(imageData)
+      function paintGreen(imageData) {
+          // change every 10th pixel to green
+          var numPixels = imageData.length /4;
+          for( var i=0; i< numPixels; i++) {
+              if(i%10 == 0) {
+                  imageData[ i*4 +1] = 255;
+                  imageData[ i*4 +3] = 255;
+              }
+          }
+      }
+
+      function makePixelGrayScale (r,g,b,a) {
+          var y = (0.3 * r) + (0.59*g) + (0.11 * b);
+          return {r:y, g:y, b:y, a:y}
+      }
+      function greyScale(imageParent) {
+        var imageData = imageParent.data;
+        var numPixels = imageData.length /4;
+        console.log(imageData);
+          for(var i = 0; i < numPixels; i++){
+              var redPx = imageData[i*4 +0];
+                  var greenPx = imageData[i*4 +1];
+                  var bluePx = imageData[i*4 +2];
+                  var alphaPx = imageData[i*4 +3];
+                  var pixel = makePixelGrayScale(redPx, greenPx,bluePx,alphaPx);
+
+                  imageData[i*4 +0] = pixel.r;
+    imageData[i*4 +1] = pixel.g;
+    imageData[i*4 +2] = pixel.b;
+    imageData[i*4 +3] = pixel.a;
+
+         }
+      }
+      ctx.putImageData(imageData, 0, 0);
+  }
+
+}
+</script>
+</body>
+</html>
+/* Udacity code
+var c = getCanvas();
+c.width = 960;
+c.height = 540;
+var ctx = c.getContext('2d');
+
+function doIt() {
+  var imageData = ctx.getImageData(0,0, 960, 540);
+  var length = imageData.data.length / 4;
+  for (var i = 0; i < length; i++){
+      imageData.data[i * 4 + 0] = 255 - imageData.data[i * 4 + 0];   //Red
+      imageData.data[i * 4 + 1] = 255 - imageData.data[i * 4 + 1];   //Green
+      imageData.data[i * 4 + 2] = 255 - imageData.data[i * 4 + 2];   //Blue
+  }
+  // Comment this line to see original image
+ // ctx.putImageData(imageData, 0, 0);
+}
+
+var image = new Image();
+image.onload = function() {
+  ctx.drawImage(image, 0, 0);
+  doIt();
+}
+image.src = 'images/image-1200.png';
+*/
